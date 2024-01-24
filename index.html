@@ -36,7 +36,6 @@
 
     .nearest-holiday {
       text-align: center;
-      padding: 16px;
       margin: 32px;
     }
 
@@ -297,20 +296,26 @@
 
     function parseDate(dateParams) {
       let dateObject = new Date(dateParams)
+      let day = dateObject.getDay()
       let date = dateObject.getDate()
       let month = getMonth(dateObject.getMonth())
       let year = dateObject.getFullYear()
 
-      return `${date} ${month} ${year}`
+      return `${getDay(day)}, ${date} ${month} ${year}`
     }
 
     function calculateDateDiff(nearestHoliday, today) {
-      return Math.ceil((nearestHoliday - today) / (24 * 3600 * 1000)) + 1;
+      return Math.ceil((nearestHoliday - today) / (24 * 3600 * 1000));
     }
 
     function getMonth(monthNumber) {
       const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
       return months[parseInt(monthNumber)]
+    }
+
+    function getDay(dayNumber) {
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+      return days[parseInt(dayNumber)]
     }
 
     function addNationalHolidays(nationalHolidays) {
