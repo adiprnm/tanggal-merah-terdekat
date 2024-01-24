@@ -25,6 +25,8 @@
     }
 
     .wrapper {
+      line-height: 1.5em;
+      text-align: center;
       min-height: 90vh;
       display: flex;
       flex-direction: column;
@@ -67,10 +69,15 @@
       color: rgb(41, 41, 41);
     }
 
+    #date-diff {
+      text-align: center;
+    }
+
     .footer {
       text-align: center;
       font-size: 12px;
       padding: 32px;
+      line-height: 1.5em;
     }
 
     .footer a {
@@ -156,8 +163,9 @@
 <body>
   <div class="container">
     <div class="wrapper">
-      <p>Tanggal merah terdekat berikutnya adalah...</p>
+      <p>Tanggal merah terdekat<br/>berikutnya adalah...</p>
       <div class="nearest-holiday">
+        <p style="text-decoration: none; font-size: 32px">🎉🎉🎉</p>
         <h2 id="nearest-holiday-date">
           <span class="loader"></span>
         </h2>
@@ -168,7 +176,7 @@
       <p id="date-diff">
         <span class="loader"></span>
       </p>
-      <a href="https://calendar.google.com" target="_blank" class="open-calendar">Buka Google Calendar</a>
+      <a href="https://calendar.google.com" target="_blank" class="open-calendar">Ajukan Cuti di Google Calendar</a>
 
       <p>atau</p>
 
@@ -176,20 +184,18 @@
 
       <div id="national-holidays" hidden>
       </div>
+
+      <footer class="footer">
+        <p>
+          Sumber data berasal dari <a href="https://api-harilibur.vercel.app">api-harilibur.vercel.app</a> dan hanya mengambil hari libur nasional.
+        </p>
+
+        <p>Terinspirasi dari <a href="https://tanggalmerah.vercel.app/">https://tanggalmerah.vercel.app</a> dengan beberapa peningkatan.</p>
+
+        <p>Traktir saya <a href="https://www.nihbuatjajan.com/adipurnm" target="_blank">jajan</a>.</p>
+      </footer>
     </div>
 
-    <footer class="footer">
-      <p>
-        Sumber data berasal dari <a href="https://api-harilibur.vercel.app">api-harilibur.vercel.app</a> dan hanya mengambil hari libur nasional.
-      </p>
-
-      <p>
-        Halaman ini terinspirasi dari salah satu thread di X.<br/>
-        Karena saya nggak nemu threadnya, jadi saya buat ulang aja 😏
-      </p>
-
-      <p>Traktir saya <a href="https://www.nihbuatjajan.com/adipurnm" target="_blank">jajan</a> kalau kamu suka karya saya.</p>
-    </footer>
   </div>
 
 
@@ -220,25 +226,73 @@
       let nearestHolidayDate, text;
       if (nearestHoliday) {
         nearestHolidayDate = parseDate(nearestHoliday.holiday_date)
+
+        let index = holidays.indexOf(nearestHoliday)
+        let previousHoliday = holidays[index - 1]
+        let nextHoliday = holidays[index + 1]
+
+        let type = getHolidayType(nearestHoliday, previousHoliday, nextHoliday)
+
         let dateDiff = calculateDateDiff(new Date(nearestHoliday.holiday_date), today)
-        text = `${dateDiff} hari lagi nih. Jangan lupa cuti ya!`
+        text = `${dateDiff} hari lagi nih.`
+
+        if (type == "libur biasa") {
+          text = `${text}<br /> Libur biasa sih, tapi kalau kamu perlu cuti, cuti aja 😁.`
+        } else {
+          text = `${text} Jangan lupa cuti, ya!<br />Mumpung ${type} 😆`
+        }
       } else {
-        nearestHolidayDate = "Tidak ada libur bro."
+        nearestHolidayDate = "Nggak ada libur bro."
         text = "Sabar ya..."
       }
 
 
       document.getElementById('nearest-holiday-date').textContent = nearestHolidayDate
       document.getElementById('nearest-holiday-name').textContent = nearestHoliday?.holiday_name
-      document.getElementById('date-diff').textContent = text
+      document.getElementById('date-diff').innerHTML = text
 
       holidays = holidays.filter(
         (holiday) => {
-          return new Date(holiday.holiday_date) > today && holiday.is_national_holiday
+          return holiday.is_national_holiday
         }
       )
 
       addNationalHolidays(holidays)
+    }
+
+    function getHolidayType(nearestHoliday, previousHoliday, nextHoliday) {
+      let date = new Date(nearestHoliday.holiday_date)
+      let day = date.getDay()
+      let previousDate = new Date(date.setDate(date.getDate() - 1))
+      let nextDate = new Date(date.setDate(date.getDate() + 1))
+      let nextDate2 = new Date(date.setDate(date.getDate() + 2))
+      let prevDate = new Date(date.setDate(date.getDate() - 1))
+      let prevDate2 = new Date(date.setDate(date.getDate() - 2))
+
+      if (previousHoliday) {
+        let previousHolidayDate = new Date(previousHoliday.holiday_date)
+        let isWeekend = day + 1 == 5 || day + 2 == 5
+
+        let nextHolidayDate
+        if (nextHoliday) nextHolidayDate = new Date(nextHoliday.holiday_date)
+
+        if (isWeekend && (nextDate != nextHolidayDate || nextDate2 != nextHolidayDate)) return "tanggal kejepit"
+        if (isWeekend) return "long weekend"
+      }
+
+      if (nextHoliday) {
+        let nextHolidayDate = new Date(nextHoliday.holiday_date)
+        let isWeekend = day - 1 == 0 || day - 2 == 0
+        console.log(previousDate, "AND", previousHolidayDate)
+
+        let prevHolidayDate
+        if (prevHoliday) prevHolidayDate = new Date(prevHoliday.holiday_date)
+
+        if (isWeekend && (prevDate != prevHolidayDate || prevDate2 != nextHolidayDate)) return "tanggal kejepit"
+        if (isWeekend) return "long weekend"
+      }
+
+      return "libur biasa"
     }
 
     function parseDate(dateParams) {
@@ -271,7 +325,16 @@
         let holidayDate = parseDate(nationalHoliday.holiday_date)
         let dateDiff = calculateDateDiff(new Date(nationalHoliday.holiday_date), today)
 
-        wrapper.innerHTML = `<span style="color: rgb(255, 79, 79)">${holidayName}</span><br />${holidayDate}<br /><span style='font-size: 12px; font-style: italic;'>${dateDiff} hari lagi</span>`
+        let dateText
+        if (dateDiff > 0) {
+          dateText = `${dateDiff} hari lagi`
+        } else if (dateDiff == 0) {
+          dateText = 'Hari ini'
+        } else {
+          dateText = "Sudah lewat"
+        }
+
+        wrapper.innerHTML = `<span style="color: rgb(255, 79, 79)">${holidayName}</span><br />${holidayDate}<br /><span style='font-size: 12px; font-style: italic;'>${dateText}</span>`
 
         nationalHolidayContainer.appendChild(wrapper)
       })
