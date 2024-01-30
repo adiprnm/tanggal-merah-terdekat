@@ -15,10 +15,16 @@ async function getNearestPublicHoliday() {
             }
         }
     )
+    holidays = holidays.filter(holiday => {
+        let date = new Date(holiday.holiday_date)
+
+        // exclude weekends and non-national holiday
+        return ![6, 0].includes(date.getDay()) && holiday.is_national_holiday
+    })
     let today = new Date()
     let nearestHoliday = holidays.find(
         (holiday) => {
-            return new Date(holiday.holiday_date) > today && holiday.is_national_holiday
+            return new Date(holiday.holiday_date) > today
         }
     )
     let nearestHolidayDate, text;
@@ -86,7 +92,6 @@ function getHolidayType(nearestHoliday, previousHoliday, nextHoliday) {
     if (nextHoliday) {
         let nextHolidayDate = new Date(nextHoliday.holiday_date)
         let isWeekend = day - 1 == 0 || day - 2 == 0
-        console.log(previousDate, "AND", previousHolidayDate)
 
         let prevHolidayDate
         if (prevHoliday) prevHolidayDate = new Date(prevHoliday.holiday_date)
