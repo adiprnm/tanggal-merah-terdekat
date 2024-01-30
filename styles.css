@@ -1,0 +1,146 @@
+body {
+    background-color: #ffeae9;
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 64px auto 0 auto;
+  }
+
+  .wrapper {
+    line-height: 1.5em;
+    text-align: center;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nearest-holiday {
+    text-align: center;
+    margin: 32px;
+  }
+
+  .nearest-holiday > p {
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .nearest-holiday > h2 {
+    color: rgb(255, 79, 79);
+  }
+
+  .open-calendar {
+    display: block;
+    padding: 8px 16px;
+    background-color: rgb(255, 79, 79);
+    border-radius: 100px;
+    color: white;
+    text-decoration: none;
+    font-size: small;
+    margin-top: 16px;
+    animation: bounce 1s infinite;
+  }
+
+  .open-calendar:hover {
+    background-color: rgb(255, 123, 123);
+  }
+
+  p {
+    color: rgb(41, 41, 41);
+  }
+
+  #date-diff {
+    text-align: center;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    padding: 32px;
+    line-height: 1.5em;
+  }
+
+  .footer a {
+    color: rgb(255, 79, 79);
+  }
+
+  .loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #e75656;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+
+  #national-holidays {
+    font-size: 14px;
+    padding: 0;
+    width: 80%;
+    max-height: 300px;
+    overflow-y: scroll;
+    margin-top: 32px;
+    scrollbar-width: none;
+  }
+
+  #national-holidays::-webkit-scrollbar {
+    background-color: #ffeae9;
+    width: 5px;
+  }
+
+  #national-holidays::-webkit-scrollbar-thumb {
+    background: rgba(255, 123, 123);
+    border-radius: 100px;
+  }
+
+  #national-holidays::-webkit-scrollbar-track {
+    background: rgba(255, 209, 209, 0.308);
+    border-radius: 100px;
+  }
+
+  #national-holidays li {
+    margin: 16px;
+    line-height: 1.5em;
+  }
+
+  .toggle-national-holidays {
+    color: rgb(255, 79, 79);
+    background-color: transparent;
+    border: 1px solid rgb(255, 79, 79);
+    padding: 8px 16px;
+    border-radius: 100px;
+  }
+
+  .toggle-national-holidays:hover {
+    cursor: pointer;
+    border-color: rgb(255, 123, 123);
+    color: rgb(255, 123, 123);;
+  }
+
+  @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(-25%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
