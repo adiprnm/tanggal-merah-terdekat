@@ -47,6 +47,7 @@ async function getNearestPublicHoliday() {
     document.getElementById('nearest-holiday-date').textContent = nearestHolidayDate
     document.getElementById('nearest-holiday-name').textContent = nearestHoliday?.holiday_name
     document.getElementById('date-diff').innerHTML = text
+    document.getElementById('open-calendar-button').href = getCalendarUrl(nearestHoliday.holiday_date)
 
     holidays = holidays.filter(
         (holiday) => {
@@ -55,6 +56,11 @@ async function getNearestPublicHoliday() {
     )
 
     addNationalHolidays(holidays)
+}
+
+function getCalendarUrl(date) {
+    let splitted = date.split("-")
+    return `https://calendar.google.com/calendar/u/0/r/day/${splitted[0]}/${parseInt(splitted[1])}/${parseInt(splitted[2])}`
 }
 
 function getHolidayType(nearestHoliday, previousHoliday, nextHoliday) {
