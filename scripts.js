@@ -31,17 +31,13 @@ async function getNearestPublicHoliday() {
     if (nearestHoliday) {
         nearestHolidayDate = parseDate(nearestHoliday.holiday_date)
 
-        let index = holidays.indexOf(nearestHoliday)
-        let previousHoliday = holidays[index - 1]
-        let nextHoliday = holidays[index + 1]
-
-        let type = getHolidayType(nearestHoliday, previousHoliday, nextHoliday)
+        let type = getHolidayType(nearestHoliday, holidays)
 
         let dateDiff = calculateDateDiff(new Date(nearestHoliday.holiday_date), today)
         text = `${dateDiff} hari lagi nih.`
 
         if (type == "libur biasa") {
-            text = `${text}<br /> Libur biasa sih, tapi kalau kamu perlu cuti, cuti aja 😁.`
+            text = `${text}<br /> Libur biasa sih, tapi kalau kamu perlu cuti, cuti aja 😁`
         } else {
             text = `${text} Jangan lupa cuti, ya!<br />Mumpung ${type} 😆`
         }
@@ -69,38 +65,28 @@ function getCalendarUrl(date) {
     return `https://calendar.google.com/calendar/u/0/r/day/${splitted[0]}/${parseInt(splitted[1])}/${parseInt(splitted[2])}`
 }
 
-function getHolidayType(nearestHoliday, previousHoliday, nextHoliday) {
+function getHolidayType(nearestHoliday, holidays) {
+    let dates = holidays.map(holiday => new Date(holiday.holiday_date))
     let date = new Date(nearestHoliday.holiday_date)
     let day = date.getDay()
-    let previousDate = new Date(date.setDate(date.getDate() - 1))
-    let nextDate = new Date(date.setDate(date.getDate() + 1))
-    let nextDate2 = new Date(date.setDate(date.getDate() + 2))
-    let prevDate = new Date(date.setDate(date.getDate() - 1))
-    let prevDate2 = new Date(date.setDate(date.getDate() - 2))
 
-    if (previousHoliday) {
-        let previousHolidayDate = new Date(previousHoliday.holiday_date)
-        let isWeekend = day + 1 == 5 || day + 2 == 5
-
-        let nextHolidayDate
-        if (nextHoliday) nextHolidayDate = new Date(nextHoliday.holiday_date)
-
-        if (isWeekend && (nextDate != nextHolidayDate || nextDate2 != nextHolidayDate)) return "tanggal kejepit"
-        if (isWeekend) return "long weekend"
+    let isMiddleWeek = [3, 4].includes(day)
+    if (isMiddleWeek) {
+        let isKejepit = true
+        for (let i = day; i <= 5; i++) {
+            let nextDate = new Date(date.setDate(date.getDate() + i))
+            isKejepit = isKejepit && !dates.includes(nextDate)
+        }
+        if (isKejepit) {
+            return "tanggal kejepit"
+        } else {
+            return "long weekend"
+        }
+    } else if (day == 5) {
+        return "long weekend"
+    } else {
+        return "libur biasa"
     }
-
-    if (nextHoliday) {
-        let nextHolidayDate = new Date(nextHoliday.holiday_date)
-        let isWeekend = day - 1 == 0 || day - 2 == 0
-
-        let prevHolidayDate
-        if (prevHoliday) prevHolidayDate = new Date(prevHoliday.holiday_date)
-
-        if (isWeekend && (prevDate != prevHolidayDate || prevDate2 != nextHolidayDate)) return "tanggal kejepit"
-        if (isWeekend) return "long weekend"
-    }
-
-    return "libur biasa"
 }
 
 function parseDate(dateParams) {
@@ -138,6 +124,7 @@ function addNationalHolidays(nationalHolidays) {
         let holidayName = nationalHoliday.holiday_name
         let holidayDate = parseDate(nationalHoliday.holiday_date)
         let dateDiff = calculateDateDiff(new Date(nationalHoliday.holiday_date), today)
+        let holidayType = getHolidayType(nationalHoliday, nationalHolidays)
 
         let dateText
         if (dateDiff > 0) {
@@ -148,7 +135,12 @@ function addNationalHolidays(nationalHolidays) {
             dateText = "Sudah lewat"
         }
 
-        wrapper.innerHTML = `<span style="color: rgb(255, 79, 79)">${holidayName}</span><br />${holidayDate}<br /><span style='font-size: 12px; font-style: italic;'>${dateText}</span>`
+        wrapper.innerHTML = `
+            <span style="color: rgb(255, 79, 79)">${holidayName}</span><br />
+            ${holidayDate}<br />
+            <span style="font-weight: 600; font-size: 12px">${holidayType}</span><br />
+            <span style='font-size: 12px; font-style: italic;'>${dateText}</span>
+        `
 
         nationalHolidayContainer.appendChild(wrapper)
     })
